@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ season_title }} - SeasonLB</title>
+  <style>
+    :root{
+      --bg-0:#060810;
+      --bg-1:#160913;
+      --bg-2:#240c17;
+      --panel:#111b2b;
+      --panel-soft:#182236;
+      --line:rgba(255,255,255,.10);
+      --line-soft:rgba(255,255,255,.08);
+      --text:#f4f8ff;
+      --muted:#a9b8d3;
+      --red:#ff7788;
+      --red-soft:rgba(255,119,136,.18);
+      --gold:#ffbf69;
+      --green:#72f7b0;
+      --cyan:#66e9ff;
+      --shadow:0 24px 58px rgba(0,0,0,.45);
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:transparent}
+    body{
+      color:var(--text);
+      font:15px/1.42 Consolas,"Lucida Console","Courier New",monospace;
+    }
+
+    #season-card{
+      width:1440px;
+      border-radius:30px;
+      overflow:hidden;
+      padding:18px;
+      border:1px solid rgba(255,124,138,.35);
+      background:
+        radial-gradient(circle at 98% 0%, rgba(255,87,109,.20), transparent 30%),
+        radial-gradient(circle at 0% 100%, rgba(255,87,109,.08), transparent 38%),
+        linear-gradient(162deg, var(--bg-0) 0%, var(--bg-1) 58%, var(--bg-2) 100%);
+      box-shadow:var(--shadow);
+      position:relative;
+    }
+
+    #season-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size:40px 40px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.85), transparent 82%);
+      pointer-events:none;
+    }
+
+    .frame{position:relative;z-index:1;display:grid;gap:12px}
+
+    .surface{
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018)),
+        var(--panel);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:14px;
+      padding:14px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)),
+        linear-gradient(95deg, rgba(255,119,136,.08), rgba(255,119,136,.02));
+    }
+
+    .kicker{
+      margin:0 0 4px;
+      color:var(--red);
+      font:800 11px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+    }
+
+    .command{
+      margin:0 0 6px;
+      color:#fff;
+      font:900 3.2rem/.88 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.01em;
+      text-transform:uppercase;
+    }
+
+    .season-title{
+      margin:0;
+      color:#ffe4e7;
+      font:900 2rem/.92 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      overflow-wrap:anywhere;
+    }
+
+    .rules{
+      border-radius:20px;
+      border:1px solid rgba(255,119,136,.48);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)),
+        var(--panel-soft);
+      padding:14px 16px;
+    }
+
+    .rules h2{
+      margin:0 0 8px;
+      color:#ff9ca7;
+      font:900 .92rem/1.14 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .rules p{
+      margin:0;
+      color:#f2f7ff;
+      font:600 1rem/1.4 "Segoe UI",Arial,sans-serif;
+    }
+
+    .podium{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .podium-card{
+      border-radius:18px;
+      border:1px solid var(--line-soft);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)),
+        #152237;
+      padding:12px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .podium-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:3px;
+      background:linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .rank-1{--accent:var(--gold)}
+    .rank-2{--accent:#d8deea}
+    .rank-3{--accent:#f2a86f}
+
+    .podium-head{
+      display:grid;
+      grid-template-columns:50px minmax(0,1fr);
+      align-items:center;
+      column-gap:10px;
+      margin-bottom:10px;
+      min-height:50px;
+    }
+
+    .bubble{
+      width:50px;height:50px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--accent);
+      font:900 1.35rem/1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.02em;
+    }
+
+    .podium-name{
+      margin:0;
+      color:#fff;
+      font:900 1.17rem/1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      display:flex;
+      align-items:center;
+      min-height:50px;
+      padding-top:3px;
+    }
+
+    .podium-metrics{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+    }
+
+    .m{
+      border-radius:11px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.03);
+      min-height:56px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:4px;
+      padding:6px;
+    }
+
+    .ml{
+      color:var(--muted);
+      font:700 9px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+
+    .mv{
+      font:900 1.1rem/1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-align:center;
+    }
+
+    .tone-gold{color:var(--gold)}
+    .tone-green{color:var(--green)}
+    .tone-cyan{color:var(--cyan)}
+    .tone-white{color:var(--text)}
+
+    .table-wrap{padding:12px}
+    .table{
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid var(--line-soft);
+      background:#0f1a2d;
+    }
+
+    .thead,.row{
+      display:grid;
+      grid-template-columns:92px minmax(0,1fr) 170px 110px 130px 140px;
+      align-items:stretch;
+      padding:0 14px;
+    }
+
+    .thead{
+      min-height:50px;
+      background:rgba(255,119,136,.11);
+      border-bottom:1px solid var(--line);
+    }
+
+    .row{
+      min-height:58px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .row:nth-child(even){background:rgba(255,255,255,.015)}
+    .row:last-child{border-bottom:none}
+
+    .thead>div,.row>div{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .thead>div{
+      color:#ff9ca7;
+      font:800 10px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+    }
+
+    .rnk{color:#ff98a3;font:900 1rem/1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif}
+    .ply{
+      color:#f5f8ff;
+      font:900 1rem/1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+      transform:translateY(2px);
+    }
+    .num{font:900 1rem/1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif}
+    .upd{color:#d7e1f3}
+    .empty{
+      padding:18px;
+      color:#d7e1f3;
+      text-align:center;
+      font:600 1rem/1.4 "Segoe UI",Arial,sans-serif;
+    }
+
+    .footer{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      color:var(--muted);
+      font-size:.82rem;
+      padding:2px 2px 0;
+    }
+
+    .refresh-line{
+      color:#ffb2bb;
+      font:700 .84rem/1.2 "Segoe UI",Arial,sans-serif;
+      letter-spacing:.02em;
+      padding:2px 2px 0;
+      text-align:left;
+    }
+  </style>
+</head>
+<body>
+  <div id="season-card">
+    <div class="frame">
+      <section class="hero surface">
+        <div>
+          <p class="kicker">Seasonal Competitive Ladder</p>
+          <h1 class="command">[SLB] /SEASONLB</h1>
+          <p class="season-title">{{ season_title }}</p>
+        </div>
+        <aside class="rules">
+          <h2>How does the leaderboard work?</h2>
+          <p>{{ rules_text }}</p>
+        </aside>
+      </section>
+
+      <section class="podium">
+        {% for item in top_three %}
+        <article class="podium-card rank-{{ item.rank }}">
+          <div class="podium-head">
+            <div class="bubble">#{{ item.rank }}</div>
+            <h3 class="podium-name">{{ item.player }}</h3>
+          </div>
+          <div class="podium-metrics">
+            <div class="m"><span class="ml">WSR</span><span class="mv tone-gold">{{ item.wsr }}</span></div>
+            <div class="m"><span class="ml">W/L</span><span class="mv tone-green">{{ item.wl }}</span></div>
+            <div class="m"><span class="ml">Games</span><span class="mv tone-white">{{ item.games }}</span></div>
+          </div>
+        </article>
+        {% endfor %}
+      </section>
+
+      <section class="table-wrap surface">
+        <div class="table">
+          <div class="thead">
+            <div>Rank</div><div>Player</div><div>Tracked Games</div><div>W/L</div><div>WSR</div><div>Updated</div>
+          </div>
+          {% if rows %}
+            {% for row in rows %}
+            <div class="row">
+              <div class="rnk">{{ row.rank }}</div>
+              <div class="ply">{{ row.player }}</div>
+              <div class="num">{{ row.games }}</div>
+              <div class="num tone-green">{{ row.wl }}</div>
+              <div class="num tone-gold">{{ row.wsr }}</div>
+              <div class="upd">{{ row.updated }}</div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty">No eligible players yet. Players appear after {{ min_games_visible }} tracked games.</div>
+          {% endif %}
+        </div>
+      </section>
+
+      <div class="refresh-line">Next refresh: {{ next_refresh_text }}</div>
+      <footer class="footer">
+        <div>{{ footer_left }}</div>
+        <div>{{ footer_right }}</div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

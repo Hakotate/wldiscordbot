@@ -1,0 +1,7 @@
+# One player per line (Minecraft username or UUID)
+# This file is intentionally empty in the public-safe package.
+# Add your own tracked players here after cloning/deploying.
+#
+# Example:
+# Teishoko
+# 3f535cb2bd4644c69ba34e9ee4ff7ea2

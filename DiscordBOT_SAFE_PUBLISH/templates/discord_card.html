@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ section.label }} - {{ player_name }}</title>
+  <style>
+    :root{
+      --bg:#050b16;
+      --bg-deep:#020611;
+      --panel:rgba(8, 18, 35, .94);
+      --panel-soft:rgba(255,255,255,.05);
+      --panel-line:rgba(255,255,255,.08);
+      --text:#f5f8ff;
+      --muted:#97aecd;
+      --cyan:#67e8f9;
+      --green:#4effa1;
+      --red:#ff6b86;
+      --gold:#ffd56a;
+      --pink:#ff77ff;
+      --orange:#ffab52;
+      --blue:#7cbcff;
+      --shadow:0 24px 64px rgba(0,0,0,.38);
+      --warrior:#ff5f76;
+      --paladin:#ffd452;
+      --mage:#67e8ff;
+      --shaman:#62ff8d;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:transparent}
+    body{
+      color:var(--text);
+      font:15px/1.42 Consolas,"Lucida Console","Courier New",monospace;
+    }
+
+    #discord-card{
+      width:1440px;
+      padding:26px;
+      border-radius:30px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,.07), transparent 24%),
+        radial-gradient(circle at 100% 0%, var(--accent-soft), transparent 34%),
+        radial-gradient(circle at 0% 100%, rgba(124,188,255,.12), transparent 32%),
+        linear-gradient(160deg, #081626 0%, #040b16 55%, #06070e 100%);
+      border:1px solid color-mix(in srgb, var(--accent) 36%, rgba(255,255,255,.18));
+      box-shadow:var(--shadow);
+      position:relative;
+    }
+
+    #discord-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size:40px 40px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.72), transparent 78%);
+      opacity:.36;
+      pointer-events:none;
+    }
+
+    .frame{
+      position:relative;
+      z-index:1;
+      display:grid;
+      gap:18px;
+    }
+
+    .header-grid{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:18px;
+    }
+
+    .surface{
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025)),
+        var(--panel);
+      border:1px solid var(--panel-line);
+      border-radius:24px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .identity-card{
+      padding:18px 20px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .identity-card::after{
+      content:"";
+      position:absolute;
+      top:-40px;
+      right:-50px;
+      width:190px;
+      height:190px;
+      border-radius:50%;
+      background:radial-gradient(circle, var(--accent-soft), transparent 70%);
+      pointer-events:none;
+    }
+
+    .eyebrow,
+    .section-kicker,
+    .metric-label,
+    .mini-label,
+    .list-label,
+    .weapon-label,
+    .field-label{
+      font:700 10px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+      color:var(--accent);
+      margin-bottom:12px;
+    }
+
+    .eyebrow::before{
+      content:"";
+      width:30px;
+      height:1px;
+      background:linear-gradient(90deg, rgba(255,255,255,.14), var(--accent));
+    }
+
+    .name-row{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:14px;
+    }
+
+    .player-name{
+      margin:0;
+      font:800 2.2rem/.95 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+    }
+
+    .rank{
+      color:var(--accent);
+    }
+
+    .rank-segment{
+      display:inline-block;
+    }
+
+    .description-shell{
+      margin-top:8px;
+      padding:16px 18px;
+      border-radius:24px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)),
+        rgba(255,255,255,.025);
+      max-width:70ch;
+    }
+
+    .description-title{
+      display:block;
+      color:var(--muted);
+      margin-bottom:8px;
+      font:700 10px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+    }
+
+    .description-copy{
+      margin:0;
+      color:#d3dff1;
+      font-size:.98rem;
+    }
+
+    .side-panel{
+      padding:18px 20px;
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+
+    .section-kicker{
+      color:var(--muted);
+      display:block;
+      margin-bottom:6px;
+    }
+
+    .section-title{
+      margin:0 0 6px;
+      font:800 1.38rem/1.05 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+
+    .section-description{
+      margin:0;
+      color:#d1dcef;
+      font-size:.95rem;
+    }
+
+    .side-stack{
+      display:grid;
+      gap:10px;
+      margin-top:4px;
+    }
+
+    .side-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:12px;
+      padding:10px 0;
+      border-bottom:1px dashed rgba(255,255,255,.08);
+    }
+
+    .side-row:last-child{border-bottom:none}
+    .side-value{
+      text-align:right;
+      white-space:nowrap;
+      font-weight:700;
+    }
+
+    .section-strip{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .section-pill{
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.028);
+      color:var(--muted);
+      font:700 10px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+    }
+
+    .section-pill.active{
+      color:#08111f;
+      background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 86%, white), var(--accent));
+      border-color:transparent;
+      box-shadow:0 10px 24px color-mix(in srgb, var(--accent) 28%, transparent);
+    }
+
+    .content-panel{
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+
+    .content-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:16px;
+    }
+
+    .content-title{
+      margin:0;
+      font:800 1.22rem/1.05 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .content-note{
+      color:var(--muted);
+      font-size:.86rem;
+      text-align:right;
+      max-width:360px;
+    }
+
+    .metric-grid{
+      display:grid;
+      gap:12px;
+    }
+
+    .metric-grid.mode{
+      grid-template-columns:repeat(3, minmax(0,1fr));
+    }
+
+    .overall-table-shell,
+    .leaderboard-table-shell,
+    .subcard,
+    .mode-card,
+    .craft-card,
+    .weapon-group,
+    .field-column{
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02)),
+        rgba(6, 15, 28, .76);
+      overflow:hidden;
+    }
+
+    .overall-table-shell{
+      padding:0;
+      overflow:hidden;
+    }
+
+    .leaderboard-table-shell{
+      padding:0;
+      overflow:hidden;
+    }
+
+    .leaderboard-table-head,
+    .leaderboard-table-row{
+      display:grid;
+      grid-template-columns:92px minmax(0,1.2fr) minmax(120px,max-content) minmax(0,.8fr) minmax(96px,max-content);
+      column-gap:16px;
+      align-items:center;
+      padding:14px 16px;
+    }
+
+    .leaderboard-table-head{
+      background:rgba(102, 229, 255, .08);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .leaderboard-table-row{
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+
+    .leaderboard-table-row:nth-child(even){
+      background:rgba(255,255,255,.018);
+    }
+
+    .leaderboard-table-row:last-child{
+      border-bottom:none;
+    }
+
+    .leaderboard-rank{
+      font:800 1rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      color:var(--accent);
+    }
+
+    .leaderboard-player{
+      font:800 1rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      color:#eef4ff;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+      overflow-wrap:anywhere;
+    }
+
+    .leaderboard-score{
+      text-align:right;
+      font:800 1.08rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      white-space:nowrap;
+    }
+
+    .leaderboard-class,
+    .leaderboard-updated{
+      color:#dbe6f9;
+    }
+
+    .leaderboard-empty{
+      padding:22px 18px;
+      color:#d8e3f6;
+      text-align:center;
+    }
+
+    .leaderboard-spec-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:12px;
+    }
+
+    .leaderboard-spec-entry{
+      display:grid;
+      grid-template-columns:56px minmax(0,1fr) auto;
+      gap:10px;
+      align-items:center;
+      padding:8px 0;
+      border-bottom:1px dashed rgba(255,255,255,.07);
+    }
+
+    .leaderboard-spec-entry:last-child{
+      border-bottom:none;
+    }
+
+    .leaderboard-spec-rank{
+      color:var(--accent);
+      font:800 .95rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+    }
+
+    .leaderboard-spec-player{
+      color:#eef4ff;
+      font:800 .92rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+      overflow-wrap:anywhere;
+    }
+
+    .leaderboard-spec-score{
+      text-align:right;
+      white-space:nowrap;
+      font:800 .96rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+    }
+
+    .overall-table-head,
+    .overall-table-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(96px,max-content) minmax(0,1fr) minmax(96px,max-content);
+      column-gap:16px;
+      row-gap:0;
+      align-items:center;
+      padding:15px 16px;
+    }
+
+    .overall-table-head{
+      background:rgba(102, 229, 255, .08);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .overall-table-row{
+      border-bottom:1px solid rgba(255,255,255,.07);
+    }
+
+    .overall-table-row:nth-child(even){
+      background:rgba(255,255,255,.018);
+    }
+
+    .overall-table-row:last-child{
+      border-bottom:none;
+    }
+
+    .overall-header-cell{
+      color:var(--cyan);
+      font:700 10px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+    }
+
+    .overall-table-head > :nth-child(1),
+    .overall-table-row > :nth-child(1){
+      justify-self:start;
+      text-align:left;
+    }
+
+    .overall-table-head > :nth-child(2),
+    .overall-table-row > :nth-child(2){
+      justify-self:end;
+      text-align:right;
+    }
+
+    .overall-table-head > :nth-child(3),
+    .overall-table-row > :nth-child(3){
+      justify-self:start;
+      text-align:left;
+    }
+
+    .overall-table-head > :nth-child(4),
+    .overall-table-row > :nth-child(4){
+      justify-self:end;
+      text-align:right;
+    }
+
+    .overall-cell{
+      color:#e6eefc;
+      font-size:1rem;
+    }
+
+    .overall-value{
+      text-align:right;
+      font:800 1.02rem/1.1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      white-space:nowrap;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
+
+    .subcard{
+      padding:16px;
+      position:relative;
+    }
+
+    .subcard::before,
+    .weapon-group::before,
+    .craft-card::before{
+      content:"";
+      position:absolute;
+      inset:0 auto auto 0;
+      width:100%;
+      height:4px;
+      background:linear-gradient(90deg, transparent, var(--local-accent, var(--accent)), transparent);
+      opacity:.9;
+    }
+
+    .subcard.theme-warrior{--local-accent:var(--warrior)}
+    .subcard.theme-paladin{--local-accent:var(--paladin)}
+    .subcard.theme-mage{--local-accent:var(--mage)}
+    .subcard.theme-shaman{--local-accent:var(--shaman)}
+    .weapon-group.theme-warrior{--local-accent:var(--warrior)}
+    .weapon-group.theme-paladin{--local-accent:var(--paladin)}
+    .weapon-group.theme-mage{--local-accent:var(--mage)}
+    .weapon-group.theme-shaman{--local-accent:var(--shaman)}
+    .craft-card.theme-warrior{--local-accent:var(--warrior)}
+    .craft-card.theme-paladin{--local-accent:var(--paladin)}
+    .craft-card.theme-mage{--local-accent:var(--mage)}
+    .craft-card.theme-shaman{--local-accent:var(--shaman)}
+
+    .subcard-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    .subcard-title,
+    .mode-title,
+    .craft-title,
+    .weapon-group-title{
+      margin:0;
+      font:800 1.02rem/1.1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:var(--local-accent, var(--accent));
+    }
+
+    .subcard-badge{
+      padding:5px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      font:700 10px/1.2 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+    }
+
+    .mini-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .mini-grid.three{grid-template-columns:repeat(3, minmax(0,1fr))}
+
+    .mini-item{
+      padding:10px 9px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      min-height:62px;
+    }
+
+    .mini-label{
+      display:block;
+      color:var(--muted);
+      margin-bottom:5px;
+    }
+
+    .mini-value{
+      display:block;
+      font:800 .96rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      word-break:break-word;
+    }
+
+    .list-block{
+      display:grid;
+      gap:7px;
+    }
+
+    .list-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:10px;
+      padding:7px 0;
+      border-bottom:1px dashed rgba(255,255,255,.07);
+    }
+
+    .list-row:last-child{border-bottom:none}
+    .list-label{
+      color:#d8e3f6;
+    }
+
+    .list-value{
+      text-align:right;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
+    .spec-sr-value{
+      font:800 1.16rem/1.08 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      letter-spacing:.02em;
+    }
+
+    .penalty-note{
+      display:inline-block;
+      margin-left:8px;
+      font-size:.74rem;
+      white-space:normal;
+    }
+
+    .spec-stack{
+      display:grid;
+      gap:10px;
+    }
+
+    .spec-block{
+      padding:10px 11px;
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .spec-title{
+      margin:0 0 7px;
+      font:800 .88rem/1.15 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      color:#eef4ff;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .mode-card{
+      padding:16px;
+    }
+
+    .mode-title{
+      margin-bottom:12px;
+    }
+
+    .craft-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:12px;
+    }
+
+    .craft-card{
+      position:relative;
+      padding:16px;
+    }
+
+    .craft-title{
+      margin-bottom:12px;
+    }
+
+    .bound-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .bound-item{
+      padding:9px 10px;
+      border-radius:14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .bound-item .mini-label{
+      margin-bottom:4px;
+    }
+
+    .weapon-layout{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
+
+    .weapon-group{
+      position:relative;
+      padding:16px;
+    }
+
+    .weapon-group-title{
+      margin-bottom:12px;
+    }
+
+    .weapon-card-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:10px;
+    }
+
+    .weapon-card{
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.08);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025)),
+        rgba(255,255,255,.03);
+      min-height:260px;
+    }
+
+    .weapon-label{
+      display:block;
+      color:var(--muted);
+      margin-bottom:5px;
+    }
+
+    .weapon-title{
+      margin:0 0 6px;
+      font:800 1rem/1.14 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      color:var(--gold);
+      overflow-wrap:anywhere;
+      text-transform:uppercase;
+      letter-spacing:.02em;
+    }
+
+    .weapon-subtitle{
+      margin:0 0 12px;
+      color:#eef5ff;
+      font-size:.78rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+
+    .weapon-stat-list{
+      display:grid;
+      gap:7px;
+    }
+
+    .weapon-stat{
+      padding:8px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(255,255,255,.035);
+    }
+
+    .weapon-stat-label{
+      display:block;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+
+    .weapon-stat-value{
+      display:block;
+      font:800 1rem/1.1 Bahnschrift,"Trebuchet MS","Segoe UI",sans-serif;
+      word-break:break-word;
+    }
+
+    .field-layout{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:10px;
+    }
+
+    .field-column{
+      padding:12px;
+    }
+
+    .field-row{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:10px;
+      padding:7px 0;
+      border-bottom:1px dashed rgba(255,255,255,.07);
+    }
+
+    .field-row:last-child{border-bottom:none}
+    .field-label{
+      color:#dbe6f9;
+    }
+
+    .field-value{
+      text-align:right;
+      white-space:nowrap;
+      font-weight:700;
+    }
+
+    .footer-note{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      color:var(--muted);
+      font-size:.82rem;
+      padding-top:4px;
+    }
+
+    .tone-good{color:var(--green)}
+    .tone-bad{color:var(--red)}
+    .tone-warn{color:var(--gold)}
+    .tone-cyan{color:var(--cyan)}
+    .tone-pink{color:var(--pink)}
+    .tone-orange{color:var(--orange)}
+    .tone-blue{color:var(--blue)}
+    .tone-white{color:var(--text)}
+    .tone-red{color:var(--red)}
+  </style>
+</head>
+<body>
+  <div id="discord-card" style="--accent: {{ accent_color }}; --accent-soft: {{ accent_soft }};">
+    <div class="frame">
+      <section class="header-grid">
+        <article class="identity-card surface">
+          <span class="eyebrow">Warlords Discord Interface</span>
+          <div class="name-row">
+            <h1 class="player-name"><span class="rank">{% for segment in player_rank_segments %}<span class="rank-segment" style="color: {{ segment.color }};">{{ segment.text }}</span>{% endfor %}</span> {{ player_name }}</h1>
+          </div>
+          <div class="description-shell">
+            <span class="description-title">{{ description_title or "Description Of The Player" }}</span>
+            <p class="description-copy">{{ player_description }}</p>
+          </div>
+        </article>
+
+        <aside class="side-panel surface">
+          <div>
+            <span class="section-kicker">{{ section.kicker }}</span>
+            <h2 class="section-title">{{ section.label }}</h2>
+          </div>
+
+          <div class="side-stack">
+            {% for row in side_rows %}
+            <div class="side-row">
+              <div>{{ row.label }}</div>
+              <div class="side-value {{ row.tone }}">{{ row.value }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </aside>
+      </section>
+
+      <section class="section-strip">
+        {% for item in sections %}
+        <div class="section-pill{% if item.key == (active_section_key or section.key) %} active{% endif %}">{{ item.short }}</div>
+        {% endfor %}
+      </section>
+
+      <section class="content-panel surface">
+        <div class="content-head">
+          <div>
+            <h3 class="content-title">{{ section.label }}</h3>
+          </div>
+          {% if section.note %}
+          <div class="content-note">{{ section.note }}</div>
+          {% endif %}
+        </div>
+
+        {% if section.key == 'overall_statistics' %}
+        <div class="overall-table-shell">
+          <div class="overall-table-head">
+            <div class="overall-header-cell">Stat</div>
+            <div class="overall-header-cell">Value</div>
+            <div class="overall-header-cell">Stat</div>
+            <div class="overall-header-cell">Value</div>
+          </div>
+          {% for row in page.rows %}
+          <div class="overall-table-row">
+            <div class="overall-cell">{{ row.left.label }}</div>
+            <div class="overall-value {{ row.left.tone }}">{{ row.left.value }}</div>
+            <div class="overall-cell">{{ row.right.label }}</div>
+            <div class="overall-value {{ row.right.tone }}">{{ row.right.value }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.key == 'class_and_sr_breakdown' %}
+        <div class="grid-2">
+          {% for class_card in page.classes %}
+          <article class="subcard theme-{{ class_card.theme }}">
+            <div class="subcard-head">
+              <h4 class="subcard-title">{{ class_card.label }}</h4>
+            </div>
+            <div class="mini-grid">
+              {% for metric in class_card.metrics %}
+              <div class="mini-item">
+                <span class="mini-label">{{ metric.label }}</span>
+                <span class="mini-value {{ metric.tone }}">{{ metric.value }}</span>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="list-block">
+              <div class="list-row">
+                <div class="list-label">Active Spec</div>
+                <div class="list-value tone-cyan">{{ class_card.active_spec }}</div>
+              </div>
+              {% for spec in class_card.spec_srs %}
+              <div class="list-row">
+                <div class="list-label">{{ spec.label }}</div>
+                <div class="list-value spec-sr-value {{ spec.tone }}">{{ spec.value }}{% if spec.penalty %}<span class="penalty-note tone-warn">{{ spec.penalty_text }}</span>{% endif %}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.key == 'spec_boost_war_pal' or section.key == 'spec_boost_mag_sha' %}
+        <div class="grid-2">
+          {% for boost_card in page.boosts %}
+          <article class="subcard theme-{{ boost_card.theme }}">
+            <div class="subcard-head">
+              <h4 class="subcard-title">{{ boost_card.label }}</h4>
+            </div>
+            <div class="spec-stack">
+              {% for spec in boost_card.specs %}
+              <div class="spec-block">
+                <h5 class="spec-title">{{ spec.name }}</h5>
+                <div class="list-block">
+                  {% for row in spec.rows %}
+                  <div class="list-row">
+                    <div class="list-label {{ row.tone }}">{{ row.label }}</div>
+                    <div class="list-value {{ row.tone }}">{{ row.value }}</div>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.key == 'game_mode_breakdown' %}
+        <div class="metric-grid mode">
+          {% for mode in page.modes %}
+          <article class="mode-card">
+            <h4 class="mode-title">{{ mode.label }}</h4>
+            <div class="mini-grid" style="grid-template-columns:repeat({{ mode.metrics|length }}, minmax(0,1fr));">
+              {% for metric in mode.metrics %}
+              <div class="mini-item">
+                <span class="mini-label">{{ metric.label }}</span>
+                <span class="mini-value {{ metric.tone }}">{{ metric.value }}</span>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="list-block">
+              {% for row in mode.details %}
+              <div class="list-row">
+                <div class="list-label">{{ row.label }}</div>
+                <div class="list-value {{ row.tone }}">{{ row.value }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.key == 'crafting_equipment' %}
+        <div class="craft-grid">
+          {% for block in page.blocks %}
+          <article class="craft-card{% if block.theme %} theme-{{ block.theme }}{% endif %}">
+            <h4 class="craft-title">{{ block.label }}</h4>
+            <div class="list-block">
+              {% for row in block.rows %}
+              <div class="list-row">
+                <div class="list-label">{{ row.label }}</div>
+                <div class="list-value {{ row.tone }}">{{ row.value }}</div>
+              </div>
+              {% endfor %}
+            </div>
+            {% if block.bound_rows %}
+            <div class="bound-grid">
+              {% for row in block.bound_rows %}
+              <div class="bound-item">
+                <span class="mini-label">{{ row.label }}</span>
+                <span class="mini-value {{ row.tone }}">{{ row.value }}</span>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.key == 'weapon_inv_war_pal' or section.key == 'weapon_inv_mag_sha' %}
+        <div class="weapon-layout">
+          {% for group in page.groups %}
+          <article class="weapon-group theme-{{ group.theme }}">
+            <h4 class="weapon-group-title">{{ group.label }}</h4>
+            <div class="weapon-card-grid">
+              {% for weapon in group.cards %}
+              <div class="weapon-card">
+                <span class="weapon-label">{{ weapon.label }}</span>
+                <h5 class="weapon-title">{{ weapon.title }}</h5>
+                <p class="weapon-subtitle">{{ weapon.subtitle }}</p>
+                <div class="weapon-stat-list">
+                  {% for row in weapon.rows %}
+                  <div class="weapon-stat">
+                    <span class="weapon-stat-label weapon-label">{{ row.label }}</span>
+                    <span class="weapon-stat-value {{ row.tone }}">{{ row.value }}</span>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.key == 'other_tracked_fields' %}
+        <div class="field-layout">
+          {% for column in page.columns %}
+          <article class="field-column">
+            {% for row in column %}
+            <div class="field-row">
+              <div class="field-label">{{ row.label }}</div>
+              <div class="field-value {{ row.tone }}">{{ row.value }}</div>
+            </div>
+            {% endfor %}
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.key == 'leaderboard' %}
+          <div class="leaderboard-table-shell">
+            <div class="leaderboard-table-head">
+              <div class="overall-header-cell">Rank</div>
+              <div class="overall-header-cell">Player</div>
+              <div class="overall-header-cell" style="text-align:right;">SR</div>
+              <div class="overall-header-cell">Fav Class</div>
+              <div class="overall-header-cell">Updated</div>
+            </div>
+            {% if page.rows %}
+              {% for row in page.rows %}
+              <div class="leaderboard-table-row">
+                <div class="leaderboard-rank">{{ row.rank }}</div>
+                <div class="leaderboard-player">{{ row.player }}</div>
+                <div class="leaderboard-score {{ row.tone }}">{{ row.score }}</div>
+                <div class="leaderboard-class">{{ row.class }}</div>
+                <div class="leaderboard-updated">{{ row.updated }}</div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="leaderboard-empty">
+                No tracked players yet. Use <strong>/sr &lt;player&gt;</strong> to add players into the leaderboard pool.
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </section>
+
+      <div class="footer-note">
+        <div>{{ footer_left }}</div>
+        <div>{{ footer_right }}</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
